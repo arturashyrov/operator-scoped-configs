@@ -1,0 +1,10 @@
+someConfig:
+  foo: default-bar
+
+betngo:
+  someConfig:
+    foo: betngo-bar
+
+parimatch:
+  someConfig:
+    foo: parimatch-bar
