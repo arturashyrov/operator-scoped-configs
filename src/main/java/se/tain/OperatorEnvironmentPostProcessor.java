@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
-import static java.util.stream.Collectors.*;
 
 /**
  * Created by ruel on 9/27/16.
@@ -29,14 +28,15 @@ public class OperatorEnvironmentPostProcessor implements EnvironmentPostProcesso
         MutablePropertySources propertySources = environment.getPropertySources();
         // check if no additional checks needed in case if we work with ConfigServer
         EnumerablePropertySource applicationConfigurationProperties = (EnumerablePropertySource) propertySources.get("applicationConfigurationProperties");
-        propertySources.addAfter("applicationConfigurationProperties", new EnumerablePropertySource<Collection<PropertySource<?>>> ("operatorSpecificApplicationConfigurationProperties") {
+        propertySources.replace("applicationConfigurationProperties", new EnumerablePropertySource<Collection<PropertySource<?>>> ("operatorSpecificApplicationConfigurationProperties") {
             @Override
             public Object getProperty(String name) {
                 String op = OperatorContext.getCurrentOperator();
+                String opScopedName = null;
                 if (StringUtils.hasText(op)) {
-                    name = format("%s.%s", op, name);
+                    opScopedName = format("%s.%s", op, name);
                 }
-                return applicationConfigurationProperties.getProperty(name);
+                return opScopedName != null && applicationConfigurationProperties.containsProperty( opScopedName ) ? applicationConfigurationProperties.getProperty(opScopedName) : applicationConfigurationProperties.getProperty(name);
             }
 
             @Override
