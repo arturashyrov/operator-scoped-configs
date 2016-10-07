@@ -9,6 +9,6 @@ spring:
       failFast: true
       server:
         git:
-          uri: https://github.com/arturashyrov/operator-scoped-configs.git
-          searchPaths: config-samples
+          uri: https://github.com/arturashyrov/operator-scoped-configs
+          searchPaths: configs-samples
           cloneOnStart: true

@@ -5,14 +5,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Created by ruel on 9/26/16.
- */
 @RestController
 @RequestMapping("/api")
 public class SomeController {
+    private final SomeConfig someConfig;
+
     @Autowired
-    private SomeConfig someConfig;
+    public SomeController( SomeConfig someConfig ) {
+        this.someConfig = someConfig;
+    }
 
     @GetMapping(path = "/config")
     public ExternalData getConfig() {

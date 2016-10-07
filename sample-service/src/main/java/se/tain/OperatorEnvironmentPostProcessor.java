@@ -17,16 +17,20 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
-/**
- * Created by ruel on 9/27/16.
- */
 public class OperatorEnvironmentPostProcessor implements EnvironmentPostProcessor {
     private Logger log = org.slf4j.LoggerFactory.getLogger(OperatorEnvironmentPostProcessor.class);
 
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
         MutablePropertySources propertySources = environment.getPropertySources();
-        // check if no additional checks needed in case if we work with ConfigServer
+        wrapApplicationConfigurationProperties( propertySources );
+    }
+
+    private void wrapApplicationConfigurationProperties( MutablePropertySources propertySources ) {
+        if ( !propertySources.contains( "applicationConfigurationProperties" ) ) {
+            return;
+        }
+
         EnumerablePropertySource applicationConfigurationProperties = (EnumerablePropertySource) propertySources.get("applicationConfigurationProperties");
         propertySources.replace("applicationConfigurationProperties", new EnumerablePropertySource<Collection<PropertySource<?>>> ("operatorSpecificApplicationConfigurationProperties") {
             @Override
@@ -51,7 +55,5 @@ public class OperatorEnvironmentPostProcessor implements EnvironmentPostProcesso
                 return propertyNames;
             }
         });
-
-        log.debug("Post processor called");
     }
 }
