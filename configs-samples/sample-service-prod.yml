@@ -1,0 +1,6 @@
+someConfig:
+  foo: default-bar-prod
+
+redcasino:
+  someConfig:
+    foo: red-bar-prod

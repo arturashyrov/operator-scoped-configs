@@ -21,7 +21,7 @@ import static java.lang.String.format;
  * Created by ruel on 9/27/16.
  */
 public class OperatorEnvironmentPostProcessor implements EnvironmentPostProcessor {
-    public Logger log = org.slf4j.LoggerFactory.getLogger(OperatorEnvironmentPostProcessor.class);
+    private Logger log = org.slf4j.LoggerFactory.getLogger(OperatorEnvironmentPostProcessor.class);
 
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {

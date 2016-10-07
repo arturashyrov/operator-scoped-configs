@@ -3,24 +3,22 @@ package se.tain;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
-import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
-import org.springframework.core.convert.ConversionService;
-import org.springframework.core.convert.TypeDescriptor;
-import org.springframework.core.env.Environment;
-import org.springframework.core.env.StandardEnvironment;
 
-import javax.servlet.*;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import java.io.IOException;
 import java.util.Map;
 
 @SpringBootApplication
-public class OperatorScopedConfigsApplication implements EnvironmentAware {
-
-    private Environment environment;
+public class SampleServiceApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(OperatorScopedConfigsApplication.class, args);
+        SpringApplication.run( SampleServiceApplication.class, args);
     }
 
     @Bean
@@ -62,11 +60,5 @@ public class OperatorScopedConfigsApplication implements EnvironmentAware {
 
             }
         };
-    }
-
-    @Override
-    public void setEnvironment(Environment environment) {
-        // ConfigurationPropertySources
-        this.environment = environment;
     }
 }

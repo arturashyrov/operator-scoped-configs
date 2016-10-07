@@ -1,0 +1,10 @@
+someConfig:
+  foo: default-bar
+
+redcasino:
+  someConfig:
+    foo: red-bar
+
+bluecasino:
+  someConfig:
+    foo: blue-bar
