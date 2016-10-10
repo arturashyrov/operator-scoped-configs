@@ -1,5 +1,8 @@
 package se.tain;
 
+import org.springframework.boot.actuate.condition.ConditionalOnEnabledEndpoint;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.config.client.ConfigClientProperties;
 import org.springframework.cloud.config.client.ConfigServicePropertySourceLocator;
 import org.springframework.context.EnvironmentAware;
@@ -32,6 +35,7 @@ public class ScopedConfigServiceBootstrapConfiguration implements EnvironmentAwa
     }
 
     @Bean
+    @ConditionalOnBean(ConfigServicePropertySourceLocator.class)
     public ConfigServicePropertySourceLocator configServicePropertySourceLocator() {
         ConfigClientProperties clientProperties = configClientProperties();
 

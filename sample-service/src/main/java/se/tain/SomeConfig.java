@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 @Scope(proxyMode = ScopedProxyMode.TARGET_CLASS, scopeName = "prototype")
 public class SomeConfig {
     private String foo;
+    private String secretValue;
 
     public String getFoo() {
         return foo;
@@ -19,4 +20,11 @@ public class SomeConfig {
         this.foo = foo;
     }
 
+    public String getSecretValue() {
+        return secretValue;
+    }
+
+    public void setSecretValue(String secretValue) {
+        this.secretValue = secretValue;
+    }
 }

@@ -11,3 +11,7 @@ redcasino:
 bluecasino:
   someConfig:
     foo: blue-bar
+    secretValue: '{cipher}'
+
+# curl localhost:8888/encrypt -d superSecretValue
+
