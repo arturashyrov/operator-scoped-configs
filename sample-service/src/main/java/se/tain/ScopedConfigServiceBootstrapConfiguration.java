@@ -6,12 +6,15 @@ import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.CompositePropertySource;
+import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.PropertySource;
 import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -37,29 +40,41 @@ public class ScopedConfigServiceBootstrapConfiguration implements EnvironmentAwa
             @Override
             public PropertySource<?> locate( Environment environment ) {
                 CompositePropertySource cloudPropertySource = ( CompositePropertySource ) super.locate( environment );
-                return new CompositePropertySource( "scopedCloudConfigsPropertySource" ) {
-                    @Override
-                    public Object getProperty(String name) {
-                        String op = OperatorContext.getCurrentOperator();
-                        String opScopedName = null;
-                        if ( StringUtils.hasText(op)) {
-                            opScopedName = format("%s.%s", op, name);
-                        }
-                        return opScopedName != null && cloudPropertySource.containsProperty( opScopedName ) ? cloudPropertySource.getProperty(opScopedName) : cloudPropertySource.getProperty(name);
-                    }
 
+                String[] originalPropertyNames = cloudPropertySource.getPropertyNames();
+                Map<String, Object> originalProperties = new HashMap<>();
+
+                for (String originalPropertyName : originalPropertyNames) {
+                    if (!originalProperties.containsKey(originalPropertyName)) {
+                        originalProperties.put(originalPropertyName, cloudPropertySource.getProperty(originalPropertyName));
+                    }
+                }
+
+                cloudPropertySource.addFirstPropertySource(new EnumerablePropertySource<Object>("scoped") {
                     @Override
                     public String[] getPropertyNames() {
                         String op = OperatorContext.getCurrentOperator();
-                        String[] propertyNames = cloudPropertySource.getPropertyNames();
+                        String[] propertyNames = originalPropertyNames;
                         if(StringUtils.hasText(op)){
                             Stream<String> stream = Arrays.stream(propertyNames);
-                            List<String> propNamesFiltered = stream.map( s -> s.replace(format("%s.", op), "")).collect( Collectors.toList());
+                            List<String> propNamesFiltered = stream.map(s -> s.replace(format("%s.", op), "")).collect(Collectors.toList());
                             propertyNames = propNamesFiltered.toArray(new String[propNamesFiltered.size()]);
                         }
                         return propertyNames;
                     }
-                };
+
+                    @Override
+                    public Object getProperty(String name) {
+                        String op = OperatorContext.getCurrentOperator();
+                        String opScopedName = null;
+                        if (StringUtils.hasText(op)) {
+                            opScopedName = format("%s.%s", op, name);
+                        }
+                        return opScopedName != null && originalProperties.containsKey( opScopedName ) ? originalProperties.get(opScopedName) : originalProperties.get(name);
+                    }
+                });
+
+                return cloudPropertySource;
             }
         };
         return configServicePropertySourceLocator;
