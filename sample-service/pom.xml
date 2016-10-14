@@ -7,7 +7,7 @@
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>sample-service</name>
+    <name>scoped-configs/sample-service</name>
     <description>Service which utilizes scoped configs</description>
 
     <parent>
@@ -27,6 +27,11 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>se.tain</groupId>
+            <artifactId>scoped-cloud-configs</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

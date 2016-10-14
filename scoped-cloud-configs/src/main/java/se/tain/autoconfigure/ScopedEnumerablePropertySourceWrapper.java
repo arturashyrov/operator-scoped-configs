@@ -1,4 +1,4 @@
-package se.tain;
+package se.tain.autoconfigure;
 
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.util.StringUtils;
@@ -11,20 +11,22 @@ import java.util.stream.Stream;
 import static java.lang.String.format;
 
 public class ScopedEnumerablePropertySourceWrapper<T> extends EnumerablePropertySource<T> {
-    private EnumerablePropertySource<T> delegate;
+    private final RuntimeConfigScope configScope;
+    private final EnumerablePropertySource<T> delegate;
 
-    public ScopedEnumerablePropertySourceWrapper(EnumerablePropertySource<T> delegate) {
+    public ScopedEnumerablePropertySourceWrapper(RuntimeConfigScope configScope, EnumerablePropertySource<T> delegate) {
         super("scoped." + delegate.getName());
+        this.configScope = configScope;
         this.delegate = delegate;
     }
 
     @Override
     public String[] getPropertyNames() {
-        String op = OperatorContext.getCurrentOperator();
+        String scope = configScope.lookup();
         String[] propertyNames = delegate.getPropertyNames();
-        if(StringUtils.hasText(op)){
+        if(StringUtils.hasText(scope)){
             Stream<String> stream = Arrays.stream(propertyNames);
-            List<String> propNamesFiltered = stream.map(s -> s.replace(format("%s.", op), "")).collect(Collectors.toList());
+            List<String> propNamesFiltered = stream.map(s -> s.replace(format("%s.", scope), "")).collect(Collectors.toList());
             propertyNames = propNamesFiltered.toArray(new String[propNamesFiltered.size()]);
         }
         return propertyNames;
@@ -32,10 +34,10 @@ public class ScopedEnumerablePropertySourceWrapper<T> extends EnumerableProperty
 
     @Override
     public Object getProperty(String name) {
-        String op = OperatorContext.getCurrentOperator();
+        String scope = configScope.lookup();
         String opScopedName = null;
-        if (StringUtils.hasText(op)) {
-            opScopedName = format("%s.%s", op, name);
+        if (StringUtils.hasText(scope)) {
+            opScopedName = format("%s.%s", scope, name);
         }
         return opScopedName != null && delegate.containsProperty( opScopedName ) ? delegate.getProperty(opScopedName) : delegate.getProperty(name);
 

@@ -1,8 +1,8 @@
-package se.tain;
+package se.tain.autoconfigure.cloud;
 
-import org.springframework.boot.actuate.condition.ConditionalOnEnabledEndpoint;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.cloud.config.client.ConfigClientProperties;
 import org.springframework.cloud.config.client.ConfigServicePropertySourceLocator;
 import org.springframework.context.EnvironmentAware;
@@ -12,20 +12,28 @@ import org.springframework.core.env.CompositePropertySource;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.PropertySource;
+import se.tain.autoconfigure.ScopeContext;
+import se.tain.autoconfigure.RuntimeConfigScope;
+import se.tain.autoconfigure.ScopedEnumerablePropertySourceWrapper;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.LinkedList;
 
-import static java.lang.String.format;
-
-/**
- * This configuration should kick-in when cloud configs are in place
- * @see ScopedEnvironmentPostProcessor
- * @see ScopedEnumerablePropertySourceWrapper
- */
 @Configuration
-// https://github.com/spring-cloud/spring-cloud-config/issues/177
-public class ScopedConfigServiceBootstrapConfiguration implements EnvironmentAware {
+@ConditionalOnExpression(value = "!${spring.cloud.config.enabled} && ${spring.cloud.config.scoped}")
+@ConditionalOnClass(value = ConfigServicePropertySourceLocator.class)
+public class ScopedCloudConfigPropertySourceLocator implements EnvironmentAware {
     private Environment environment;
+
+    @Bean
+    public RuntimeConfigScope configScope() {
+        return new RuntimeConfigScope() {
+            @Override
+            public String lookup() {
+                return ScopeContext.get();
+            }
+        };
+    }
 
     @Bean
     public ConfigClientProperties configClientProperties() {
@@ -35,14 +43,14 @@ public class ScopedConfigServiceBootstrapConfiguration implements EnvironmentAwa
     }
 
     @Bean
-    @ConditionalOnBean(ConfigServicePropertySourceLocator.class)
     public ConfigServicePropertySourceLocator configServicePropertySourceLocator() {
         ConfigClientProperties clientProperties = configClientProperties();
 
-        ConfigServicePropertySourceLocator configServicePropertySourceLocator =  new ConfigServicePropertySourceLocator(clientProperties) {
+        ConfigServicePropertySourceLocator configServicePropertySourceLocator = new ConfigServicePropertySourceLocator(clientProperties) {
             @Override
-            public PropertySource<?> locate( Environment environment ) {
+            public PropertySource<?> locate(Environment environment) {
                 CompositePropertySource cloudPropertySource = (CompositePropertySource) super.locate(environment);
+                if(cloudPropertySource == null) return null;
 
                 // get a copy of cloud config property sources first
                 Collection<PropertySource<?>> propertySourcesCopy = new LinkedList<>();
@@ -54,7 +62,7 @@ public class ScopedConfigServiceBootstrapConfiguration implements EnvironmentAwa
                 propertySourcesCopy.stream()
                         .forEach(
                                 ps -> cloudPropertySource.addPropertySource(
-                                        new ScopedEnumerablePropertySourceWrapper((EnumerablePropertySource) ps)
+                                        new ScopedEnumerablePropertySourceWrapper(configScope(), (EnumerablePropertySource) ps)
                                 )
                         );
 
@@ -64,8 +72,9 @@ public class ScopedConfigServiceBootstrapConfiguration implements EnvironmentAwa
         return configServicePropertySourceLocator;
     }
 
+
     @Override
-    public void setEnvironment( Environment environment ) {
+    public void setEnvironment(Environment environment) {
         this.environment = environment;
     }
 }

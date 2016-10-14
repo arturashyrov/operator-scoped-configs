@@ -1,25 +1,30 @@
-package se.tain;
+package se.tain.autoconfigure.standalone;
 
-import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.env.EnvironmentPostProcessor;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.MutablePropertySources;
-
-import static java.lang.String.format;
+import se.tain.autoconfigure.RuntimeConfigScope;
+import se.tain.autoconfigure.ScopedEnumerablePropertySourceWrapper;
 
 /**
  * This post processor should be used for local configs
- * @see ScopedConfigServiceBootstrapConfiguration
  * @see ScopedEnumerablePropertySourceWrapper
  */
 public class ScopedEnvironmentPostProcessor implements EnvironmentPostProcessor {
 
+    // TODO: this doesn't work. fix it
+    @Autowired
+    private RuntimeConfigScope configScope;
+
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
         MutablePropertySources propertySources = environment.getPropertySources();
-        wrapApplicationConfigurationProperties( propertySources );
+        if ("true".equals(environment.getProperty("spring.config.standalone.scoped"))) {
+            wrapApplicationConfigurationProperties(propertySources);
+        }
     }
 
     private void wrapApplicationConfigurationProperties( MutablePropertySources propertySources ) {
@@ -28,6 +33,6 @@ public class ScopedEnvironmentPostProcessor implements EnvironmentPostProcessor 
         }
 
         EnumerablePropertySource applicationConfigurationProperties = (EnumerablePropertySource) propertySources.get("applicationConfigurationProperties");
-        propertySources.replace("applicationConfigurationProperties", new ScopedEnumerablePropertySourceWrapper<>(applicationConfigurationProperties));
+        propertySources.replace("applicationConfigurationProperties", new ScopedEnumerablePropertySourceWrapper<>(configScope, applicationConfigurationProperties));
     }
 }

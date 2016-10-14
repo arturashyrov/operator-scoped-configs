@@ -4,5 +4,6 @@ spring:
   cloud:
     config:
       enabled: false
+      scoped: true
       uri: http://localhost:8888
 #      failFast: true

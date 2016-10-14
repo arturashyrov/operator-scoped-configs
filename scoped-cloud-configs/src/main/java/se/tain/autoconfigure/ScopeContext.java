@@ -1,16 +1,16 @@
-package se.tain;
+package se.tain.autoconfigure;
 
 /**
  * Created by ruel on 9/26/16.
  */
-public class OperatorContext {
+public class ScopeContext {
     private static ThreadLocal<String> currentOperatorContext = new ThreadLocal<>();
 
-    public static void setCurrentOperator(String operator) {
+    public static void set(String operator) {
         currentOperatorContext.set(operator);
     }
 
-    public static String getCurrentOperator() {
+    public static String get() {
         return currentOperatorContext.get();
     }
 

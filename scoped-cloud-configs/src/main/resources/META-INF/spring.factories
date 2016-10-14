@@ -1,0 +1,4 @@
+# Standalone mode (local application.yml)
+org.springframework.boot.env.EnvironmentPostProcessor=se.tain.autoconfigure.standalone.ScopedEnvironmentPostProcessor
+# Cloud config mode (with config server)
+org.springframework.cloud.bootstrap.BootstrapConfiguration=se.tain.autoconfigure.cloud.ScopedCloudConfigPropertySourceLocator

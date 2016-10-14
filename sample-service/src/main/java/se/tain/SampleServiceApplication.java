@@ -4,6 +4,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
+import se.tain.autoconfigure.ScopeContext;
+import se.tain.autoconfigure.RuntimeConfigScope;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -19,6 +21,16 @@ public class SampleServiceApplication {
 
     public static void main(String[] args) {
         SpringApplication.run( SampleServiceApplication.class, args);
+    }
+
+    @Bean
+    public RuntimeConfigScope runtimeConfigScope() {
+        return new RuntimeConfigScope() {
+            @Override
+            public String lookup() {
+                return ScopeContext.get();
+            }
+        };
     }
 
     @Bean
@@ -48,10 +60,10 @@ public class SampleServiceApplication {
 
                 try {
                     String operator = operators[0];
-                    OperatorContext.setCurrentOperator(operator);
+                    ScopeContext.set(operator);
                     filterChain.doFilter(servletRequest, servletResponse);
                 } catch (Exception e) {
-                    OperatorContext.clear();
+                    ScopeContext.clear();
                 }
             }
 
