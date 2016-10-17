@@ -1,6 +1,5 @@
 package se.tain.autoconfigure.cloud;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.cloud.config.client.ConfigClientProperties;
@@ -12,8 +11,8 @@ import org.springframework.core.env.CompositePropertySource;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.PropertySource;
-import se.tain.autoconfigure.ScopeContext;
 import se.tain.autoconfigure.RuntimeConfigScope;
+import se.tain.autoconfigure.ScopeContext;
 import se.tain.autoconfigure.ScopedEnumerablePropertySourceWrapper;
 
 import java.util.Collection;
